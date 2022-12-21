@@ -1,0 +1,2 @@
+[build]
+rustflags = ["-C", "link-arg=--gc-sections", "-C", "link-arg=--script=./kernel.ld"]
