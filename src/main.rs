@@ -19,5 +19,9 @@ pub extern "C" fn kmain(_boot_info: &'static StivaleStruct) -> ! {
     desc::gdt::init();
     println!("[OK]");
 
+    print!("IDT ");
+    desc::idt::init();
+    println!("[OK]");
+
     loop {}
 }

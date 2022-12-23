@@ -1,0 +1,3 @@
+switchIDT:
+    lidt [rdi]
+    ret
