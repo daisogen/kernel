@@ -3,7 +3,7 @@ OUTPUT_FORMAT(elf64-x86-64)
 
 SECTIONS
 {
-    . = 0xFFFFFFFF80100000;
+    . = 0xFFFF800000100000;
 
     __kernel_start = .;
 

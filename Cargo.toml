@@ -3,9 +3,13 @@ name = "kernel"
 version = "0.1.0"
 edition = "2021"
 
+[profile.release]
+strip = true
+
 [dependencies.lazy_static]
 version = "1.0"
 features = ["spin_no_std"]
 
 [dependencies]
 spin = "0.5.2"
+bitfield = "0.14.0"
