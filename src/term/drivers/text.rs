@@ -82,6 +82,7 @@ impl Writer for TextWriter {
 
         self.clear_row(BUFFER_HEIGHT - 1);
         self.col = 0;
+        self.row -= 1;
     }
 
     fn clear(&mut self) {
