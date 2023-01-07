@@ -38,8 +38,8 @@ pub struct StivaleMMEntry {
 }
 
 pub const STIVALE2_MMAP_USABLE: u32 = 1;
-//pub const STIVALE2_MMAP_BOOTLOADER_RECLAIMABLE: u32 = 0x1000;
-// Using bootloader reclaimable memory is kinda scary
+pub const STIVALE2_MMAP_BOOTLOADER_RECLAIMABLE: u32 = 0x1000;
+pub const STIVALE2_MMAP_KERNEL_AND_MODULES: u32 = 0x1001;
 
 // ---
 
@@ -60,7 +60,7 @@ unsafe impl Sync for StivaleTag {}
 struct P2Align12<T>(T);
 
 // The stack that will be loaded by the bootloader
-const STACK_SIZE: usize = PAGE_SIZE;
+const STACK_SIZE: usize = 4 * PAGE_SIZE; // One page was way too small
 static STACK: P2Align12<[u8; STACK_SIZE]> = P2Align12([0; STACK_SIZE]);
 
 // Memory map structure tag

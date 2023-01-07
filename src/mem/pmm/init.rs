@@ -5,11 +5,17 @@ use crate::boot;
 use crate::mem::PAGE_SIZE;
 use crate::npages;
 
+/*
+This is the first entry in the memory map marked as usable. This is in static
+memory so that a pointer to it has static lifetime, which is used later to
+"hack" alloc() in order to allocate de first page, used later to store all the
+entries.
+*/
+static mut FIRST: *const Frame = core::ptr::null();
+
 pub fn init() {
     let nentries = unsafe { boot::MM_NENTRIES };
     let entries = unsafe { &boot::MM_ENTRIES };
-
-    let mut first: *const Frame = core::ptr::null();
 
     for i in 0..nentries {
         let base = entries[i].base;
@@ -24,15 +30,17 @@ pub fn init() {
             _ => continue,
         }
 
-        if first == core::ptr::null() {
-            first = base as *const Frame;
+        if unsafe { FIRST }.is_null() {
+            unsafe {
+                FIRST = base as *const Frame;
+            }
         }
 
         super::STATE.lock().nregions += 1;
         init_region(base, length);
     }
 
-    if first.is_null() {
+    if unsafe { FIRST }.is_null() {
         panic!("No available regions");
     }
 
@@ -40,9 +48,8 @@ pub fn init() {
     let nregions = super::STATE.lock().nregions;
     let needed = npages!(nregions * core::mem::size_of::<*const Frame>());
 
-    // Set the first region for now, in the stack
-    // This is *very* unsafe but it's the simplest way to do it
-    super::STATE.lock().regions = FrameArr(&mut first as *mut *const Frame);
+    // Set the first region for now
+    super::STATE.lock().regions = unsafe { FrameArr(&mut FIRST as *mut *const Frame) };
 
     // Now we have a valid state so we can allocate the first page
     super::STATE.lock().regions = FrameArr(calloc(needed).unwrap() as *mut *const Frame);

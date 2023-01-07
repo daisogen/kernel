@@ -5,6 +5,7 @@ mod bitmap;
 pub mod init;
 pub mod ops;
 
+pub use ops::*;
 use spin::Mutex;
 
 #[repr(C, packed)]

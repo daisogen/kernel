@@ -11,7 +11,7 @@ impl Bitmap {
             return Err(());
         }
 
-        let byte: &u8 = unsafe { &*(self.ptr.add(n / 8)) };
+        let byte: u8 = unsafe { *(self.ptr.add(n / 8)) };
         let off = n % 8;
         Ok(byte & (1 << off) != 0)
     }

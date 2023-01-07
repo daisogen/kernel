@@ -21,9 +21,11 @@ struct ScreenChar {
     ascii: u8,
     color: ColorCode,
 }
+const SC_SIZE: usize = core::mem::size_of::<ScreenChar>();
 
 const BUFFER_HEIGHT: usize = 25;
 const BUFFER_WIDTH: usize = 80;
+pub const FB_SIZE: usize = BUFFER_HEIGHT * BUFFER_WIDTH * SC_SIZE;
 
 #[repr(transparent)]
 struct Buffer {

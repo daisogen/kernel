@@ -1,5 +1,5 @@
 mod color;
-mod drivers;
+pub mod drivers;
 
 pub use color::Color;
 use core::fmt;

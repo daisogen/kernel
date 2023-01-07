@@ -33,6 +33,7 @@ pub extern "C" fn kmain(boot_info: &'static StivaleStruct) -> ! {
 
     print!("Discovering memory ");
     mem::pmm::init::init();
+    mem::paging::init_kernel_paging();
     println!("[OK]");
 
     loop {}
