@@ -4,7 +4,9 @@
 
 #[macro_use]
 extern crate bitfield;
+extern crate good_memory_allocator;
 
+extern crate alloc;
 extern crate compiler_builtins;
 
 mod boot;
@@ -34,6 +36,7 @@ pub extern "C" fn kmain(boot_info: &'static StivaleStruct) -> ! {
     print!("Discovering memory ");
     mem::pmm::init::init();
     mem::paging::init_kernel_paging();
+    mem::alloc::init_heap();
     println!("[OK]");
 
     loop {}

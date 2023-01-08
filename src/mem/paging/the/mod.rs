@@ -6,10 +6,8 @@ use crate::npages;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
-const HIGHER_HALF: u64 = 0xFFFF800000000000;
-
 lazy_static! {
-    pub static ref KPAGING: Mutex<Paging> = {
+    pub static ref PAGING: Mutex<Paging> = {
         let cr3 = pmm::calloc(1).expect("No memory to initialize kpaging!");
         Mutex::new(Paging::new(cr3))
     };
@@ -21,7 +19,7 @@ pub fn init_kernel_paging() {
     // Map framebuffer
     let mut map = Paging::newmap(0xB8000, 0xB8000);
     map.npages = npages!(crate::term::drivers::text::FB_SIZE);
-    KPAGING
+    PAGING
         .lock()
         .map(map)
         .expect("Couldn't map framebuffer (OOM!)");
@@ -39,14 +37,15 @@ pub fn init_kernel_paging() {
                 // These must be mapped 1:1
                 let mut map = Paging::newmap(base, base);
                 map.npages = npages!(length);
-                KPAGING.lock().map(map)
+                PAGING.lock().map(map)
             }
             boot::STIVALE2_MMAP_KERNEL_AND_MODULES => {
                 // These go to higher half
                 // They're at the right offset, 1 MB
-                let mut map = Paging::newmap(HIGHER_HALF + base, base);
+                let virt = crate::mem::HIGHER_HALF + base;
+                let mut map = Paging::newmap(virt, base);
                 map.npages = npages!(length);
-                KPAGING.lock().map(map)
+                PAGING.lock().map(map)
             }
             _ => Ok::<(), ()>(()),
         }
@@ -54,5 +53,5 @@ pub fn init_kernel_paging() {
     }
 
     // That's it, let's go
-    KPAGING.lock().load();
+    PAGING.lock().load();
 }

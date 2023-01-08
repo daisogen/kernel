@@ -113,6 +113,38 @@ impl Paging {
         Ok(())
     }
 
+    // Get mapped
+    /*pub fn get_ptr(&self, virt: u64) -> Option<u64> {
+        let (pml4i, pdpi, pdi, pti) = get_indices(virt);
+        let pml4e: &PML4E = &self.data[pml4i];
+        if !pml4e.get_present() {
+            return None;
+        }
+
+        let pdpes = pml4e.get_ptr() << 12;
+        let pdpes: &'static [PDPE; EPP] = unsafe { &*(pdpes as *const [PDPE; EPP]) };
+        let pdpe: &PDPE = &pdpes[pdpi];
+        if !pdpe.get_present() {
+            return None;
+        }
+
+        let pdes = pdpe.get_ptr() << 12;
+        let pdes: &'static [PDE; EPP] = unsafe { &*(pdes as *const [PDE; EPP]) };
+        let pde: &PDE = &pdes[pdi];
+        if !pde.get_present() {
+            return None;
+        }
+
+        let ptes = pde.get_ptr() << 12;
+        let ptes: &'static [PTE; EPP] = unsafe { &*(ptes as *mut [PTE; EPP]) };
+        let pte: &PTE = &ptes[pti];
+        if !pte.get_present() {
+            return None;
+        }
+
+        panic!("Looking good!");
+    }*/
+
     // Change
     pub fn load(&self) {
         let x = self.data as *const _ as u64;

@@ -5,6 +5,8 @@ use core::arch::global_asm;
 
 // No allocator yet, so fix the number of entries
 const N_ENTRIES: usize = 1 + 2;
+pub const KCODE: u16 = 0x08;
+//pub const KDATA: u16 = 0x10;
 
 #[repr(transparent)]
 struct GDTstruct {

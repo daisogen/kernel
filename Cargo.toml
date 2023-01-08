@@ -10,3 +10,4 @@ strip = true
 lazy_static = { "version" = "1.0", "features" = ["spin_no_std"] }
 spin = "0.5.2"
 bitfield = "0.14.0"
+good_memory_allocator = "0.1.7"

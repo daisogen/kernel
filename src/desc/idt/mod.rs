@@ -1,5 +1,7 @@
 mod default_isr;
+pub mod exceptions;
 
+use crate::desc::gdt::KCODE;
 use core::arch::global_asm;
 
 const IDT_ENTRIES: usize = 256; // Fixed by arch
@@ -96,27 +98,38 @@ extern "C" {
     static ISRS: [u64; IDT_ENTRIES];
 }
 
+fn set_vector(v: usize, addr: u64, seg: u16, ist: u32, dpl: u32) {
+    let gate = Gate {
+        addr: addr,
+        seg: seg as u32,
+        ist: ist,
+        dpl: dpl,
+    }
+    .real()
+    .raw();
+
+    let msbb = (gate >> 64) as u64;
+    let lsbb = (gate & ((1 << 64) - 1)) as u64;
+    unsafe {
+        IDT.vec[v][0] = lsbb;
+        IDT.vec[v][1] = msbb;
+    }
+}
+
 pub fn init() {
     // Put ISRs
     for i in 0..256 {
-        let addr = unsafe { ISRS[i] };
-        let gate = Gate {
-            addr: addr,
-            seg: 0x08, // Kernel code (TODO)
-            ist: 0,
-            dpl: 0,
-        }
-        .real()
-        .raw();
-
-        let msbb = (gate >> 64) as u64;
-        let lsbb = (gate & ((1 << 64) - 1)) as u64;
-
-        unsafe {
-            IDT.vec[i][0] = lsbb;
-            IDT.vec[i][1] = msbb;
-        }
+        set_vector(i, unsafe { ISRS[i] }, KCODE, 0, 0);
     }
+
+    // Customs
+    set_vector(
+        exceptions::EXCEPTION_PF,
+        exceptions::pf::get_asm_addr(),
+        KCODE,
+        0,
+        0,
+    );
 
     unsafe {
         switchIDT(&IDTR);
