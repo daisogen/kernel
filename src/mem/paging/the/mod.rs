@@ -3,6 +3,7 @@ use crate::boot;
 use crate::mem::pmm;
 use crate::mem::PAGE_SIZE;
 use crate::npages;
+use crate::utils::regs::{rdmsr, wrmsr};
 use lazy_static::lazy_static;
 use spin::Mutex;
 
@@ -13,8 +14,13 @@ lazy_static! {
     };
 }
 
+const EFER_ADDR: u32 = 0xC0000080;
+const EFER_BIT_NX: u32 = 11;
+
 pub fn init_kernel_paging() {
-    // NX should be enabled here if needed
+    // Enable NX on the EFER
+    let efer = rdmsr(EFER_ADDR) | (1 << EFER_BIT_NX);
+    wrmsr(EFER_ADDR, efer);
 
     // Map framebuffer
     let mut map = Paging::newmap(0xB8000, 0xB8000);

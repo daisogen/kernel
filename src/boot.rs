@@ -57,11 +57,15 @@ unsafe impl Sync for StivaleHeader {}
 unsafe impl Sync for StivaleTag {}
 
 #[repr(C, align(4096))]
-struct P2Align12<T>(T);
+struct PageAligned<T>(T);
 
 // The stack that will be loaded by the bootloader
-const STACK_SIZE: usize = 4 * PAGE_SIZE; // One page was way too small
-static STACK: P2Align12<[u8; STACK_SIZE]> = P2Align12([0; STACK_SIZE]);
+pub const STACK_SIZE: usize = 4 * PAGE_SIZE; // One page was way too small
+static STACK: PageAligned<[u8; STACK_SIZE]> = PageAligned([0; STACK_SIZE]);
+
+pub fn get_stack_addr() -> u64 {
+    STACK.0.as_ptr_range().start as u64
+}
 
 // Memory map structure tag
 #[used]

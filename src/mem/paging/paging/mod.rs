@@ -2,7 +2,6 @@ mod structures;
 
 use crate::mem::pmm;
 use crate::mem::PAGE_SIZE;
-use core::arch::asm;
 use structures::*;
 
 pub struct Paging {
@@ -114,7 +113,7 @@ impl Paging {
     }
 
     // Get mapped
-    /*pub fn get_ptr(&self, virt: u64) -> Option<u64> {
+    pub fn get_ptr(&self, virt: u64) -> Option<u64> {
         let (pml4i, pdpi, pdi, pti) = get_indices(virt);
         let pml4e: &PML4E = &self.data[pml4i];
         if !pml4e.get_present() {
@@ -142,17 +141,10 @@ impl Paging {
             return None;
         }
 
-        panic!("Looking good!");
-    }*/
+        Some(pte.get_ptr() << 12)
+    }
 
-    // Change
     pub fn load(&self) {
-        let x = self.data as *const _ as u64;
-        unsafe {
-            asm!("mov cr3, {x}",
-                 x = in(reg) x,
-                 options(nostack, preserves_flags)
-            );
-        }
+        crate::utils::regs::set_cr3(self.data as *const _ as u64);
     }
 }

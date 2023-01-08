@@ -14,6 +14,7 @@ mod desc;
 mod mem;
 mod panic;
 mod term;
+mod utils;
 
 use boot::StivaleStruct;
 
