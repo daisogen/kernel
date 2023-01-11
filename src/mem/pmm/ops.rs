@@ -74,3 +74,8 @@ pub fn calloc(npages: usize) -> Result<u64, ()> {
     }
     Ok(ret)
 }
+
+pub fn free(_ptr: u64, _npages: usize) {
+    // https://github.com/the-strife-project/kernel/blob/c6be30bff6c9748da499ad92e2a577058665da57/src/mem/PMM/ops.cpp#L67
+    todo!("I'm lazy rn");
+}

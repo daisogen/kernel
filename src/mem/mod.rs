@@ -19,3 +19,10 @@ macro_rules! page {
         $addr & !0xFFF
     };
 }
+
+#[macro_export]
+macro_rules! pageoff {
+    ($addr:expr) => {
+        $addr & 0xFFF
+    };
+}

@@ -124,6 +124,14 @@ pub fn init() {
 
     // Customs
     set_vector(
+        exceptions::EXCEPTION_UD,
+        exceptions::ud::get_asm_addr(),
+        KCODE,
+        0,
+        0,
+    );
+
+    set_vector(
         exceptions::EXCEPTION_PF,
         exceptions::pf::get_asm_addr(),
         KCODE,

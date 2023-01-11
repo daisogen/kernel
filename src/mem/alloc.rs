@@ -19,13 +19,13 @@ pub fn init_heap() {
     }
 
     // Mount stack pages
-    let new_stack_base = HH + (2 << 30) - crate::boot::STACK_SIZE as u64;
+    let new_stack_base = HH + (2 << 30) - crate::boot::k2b::STACK_SIZE as u64;
     let mut virt = new_stack_base;
     let mut phys = PAGING
         .lock()
-        .get_ptr(crate::boot::get_stack_addr())
+        .get_ptr(crate::boot::k2b::get_stack_addr())
         .unwrap();
-    let npages = npages!(crate::boot::STACK_SIZE);
+    let npages = npages!(crate::boot::k2b::STACK_SIZE);
     for _ in 0..npages {
         let mut map = Paging::newmap(virt, phys);
         map.nx = true; // A little caution never killed nobody
@@ -40,7 +40,7 @@ pub fn init_heap() {
 
     // And change stack
     unsafe {
-        switch_stack(crate::boot::get_stack_addr(), new_stack_base);
+        switch_stack(crate::boot::k2b::get_stack_addr(), new_stack_base);
     }
 }
 

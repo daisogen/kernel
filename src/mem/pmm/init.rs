@@ -14,15 +14,15 @@ entries.
 static mut FIRST: *const Frame = core::ptr::null();
 
 pub fn init() {
-    let nentries = unsafe { boot::MM_NENTRIES };
-    let entries = unsafe { &boot::MM_ENTRIES };
+    let nentries = unsafe { boot::b2k::MM_NENTRIES };
+    let entries = unsafe { &boot::b2k::MM_ENTRIES };
 
     for i in 0..nentries {
         let base = entries[i].base;
         let length = entries[i].length;
         let entry_type = entries[i].entry_type;
         match entry_type {
-            boot::STIVALE2_MMAP_USABLE => {
+            boot::structures::STIVALE2_MMAP_USABLE => {
                 if length < (2 * PAGE_SIZE) as u64 {
                     continue;
                 }
@@ -61,7 +61,7 @@ pub fn init() {
         let length = entries[i].length;
         let entry_type = entries[i].entry_type;
         match entry_type {
-            boot::STIVALE2_MMAP_USABLE => {
+            boot::structures::STIVALE2_MMAP_USABLE => {
                 if length < (2 * PAGE_SIZE) as u64 {
                     continue;
                 }

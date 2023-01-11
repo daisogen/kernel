@@ -49,6 +49,8 @@ pub extern "C" fn pf_isr(err: u64, _rsp: u64) {
     }
 
     // --- We messed up, time to go bald ---
+    // This is a bit weird but there might not be an allocator yet, so
+    //   I can't construct a string
     println!();
     print!("A kernel panic is coming. Page fault: [");
     for i in 0..5 {

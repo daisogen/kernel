@@ -4,6 +4,9 @@ use crate::mem::pmm;
 use crate::mem::PAGE_SIZE;
 use crate::npages;
 use crate::utils::regs::{rdmsr, wrmsr};
+use boot::structures::STIVALE2_MMAP_BOOTLOADER_RECLAIMABLE;
+use boot::structures::STIVALE2_MMAP_KERNEL_AND_MODULES;
+use boot::structures::STIVALE2_MMAP_USABLE;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
@@ -31,21 +34,21 @@ pub fn init_kernel_paging() {
         .expect("Couldn't map framebuffer (OOM!)");
 
     // Map kernel and modules
-    let nentries = unsafe { boot::MM_NENTRIES };
-    let entries = unsafe { boot::MM_ENTRIES };
+    let nentries = unsafe { boot::b2k::MM_NENTRIES };
+    let entries = unsafe { boot::b2k::MM_ENTRIES };
     for i in 0..nentries {
         let base = entries[i].base;
         let length = entries[i].length as usize;
         let entry_type = entries[i].entry_type;
         // All the entry types used here are guaranteed to be page-aligned
         match entry_type {
-            boot::STIVALE2_MMAP_USABLE | boot::STIVALE2_MMAP_BOOTLOADER_RECLAIMABLE => {
+            STIVALE2_MMAP_USABLE | STIVALE2_MMAP_BOOTLOADER_RECLAIMABLE => {
                 // These must be mapped 1:1
                 let mut map = Paging::newmap(base, base);
                 map.npages = npages!(length);
                 PAGING.lock().map(map)
             }
-            boot::STIVALE2_MMAP_KERNEL_AND_MODULES => {
+            STIVALE2_MMAP_KERNEL_AND_MODULES => {
                 // These go to higher half
                 // They're at the right offset, 1 MB
                 let virt = crate::mem::HIGHER_HALF + base;
