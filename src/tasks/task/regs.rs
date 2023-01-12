@@ -1,5 +1,35 @@
+#[allow(dead_code)]
+enum RFlags {
+    CF,
+    MBO,
+    PF,
+    MBZ0,
+    AF,
+    MBZ1,
+    ZF,
+    SF,
+    TF,
+    IF,
+    DF,
+    OF,
+    IOPL0,
+    IOPL1,
+    NT,
+    MBZ2,
+    RF,
+    VM,
+    AC,
+    VIF,
+    VIP,
+    ID,
+}
+
+// Just valid (with must be one = 1) and interrupts enabled
+const BASIC_RFLAGS: u64 = (1 << RFlags::MBO as u64) | (1 << RFlags::IF as u64);
+
 #[repr(C, packed)]
 pub struct SavedState {
+    rflags: u64,
     rax: u64,
     rbx: u64,
     rcx: u64,
@@ -20,6 +50,7 @@ pub struct SavedState {
 impl SavedState {
     pub fn new() -> SavedState {
         SavedState {
+            rflags: BASIC_RFLAGS,
             rax: 0,
             rbx: 0,
             rcx: 0,

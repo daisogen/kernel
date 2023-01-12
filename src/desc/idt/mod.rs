@@ -143,3 +143,19 @@ pub fn init() {
         switchIDT(&IDTR);
     }
 }
+
+pub fn init2() {
+    // This is called once TSS are set up
+    // It's just to use now the ISTs
+    set_vector(
+        exceptions::EXCEPTION_PF,
+        exceptions::pf::get_asm_addr(),
+        KCODE,
+        crate::desc::tss::IST_PF as u32,
+        0,
+    );
+
+    unsafe {
+        switchIDT(&IDTR);
+    }
+}

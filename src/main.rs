@@ -20,6 +20,9 @@ mod utils;
 
 use boot::structures::StivaleStruct;
 
+// This is an arbitrary value but one *must* be specified
+const MAX_CORES: usize = 32;
+
 #[no_mangle]
 pub extern "C" fn kmain(boot_info: &'static StivaleStruct) -> ! {
     println!("Daisogen booting up\n");
@@ -41,6 +44,11 @@ pub extern "C" fn kmain(boot_info: &'static StivaleStruct) -> ! {
     mem::paging::init_kernel_paging();
     mem::alloc::init_heap();
     // Dynamic memory is available now
+    println!("[OK]");
+
+    print!("Final preps ");
+    desc::tss::init();
+    desc::idt::init2();
     println!("[OK]");
 
     println!("Bootstrapping...");

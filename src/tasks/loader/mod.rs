@@ -1,7 +1,7 @@
 mod errors;
 mod parse;
 
-use super::{PID, TASKS};
+use super::PID;
 use crate::mem::paging::{Paging, PAGING};
 use crate::mem::pmm;
 use alloc::boxed::Box;
@@ -28,7 +28,7 @@ pub fn load(addr: u64, size: usize) -> Result<PID, Box<dyn error::Error>> {
         }
     }
 
-    let task = &mut TASKS.lock()[pid];
+    let task = super::get_mut_task(pid);
     task.rip = base + info.entry; // Entry point
     task.rsp = base + (2 << 30); // +2GB
 

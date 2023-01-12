@@ -11,3 +11,7 @@ pub fn str_from_u8_nul_utf8(utf8_src: &[u8]) -> Result<&str, alloc::str::Utf8Err
         .unwrap_or(utf8_src.len()); // default to length if no `\0` present
     alloc::str::from_utf8(&utf8_src[0..nul_range_end])
 }
+
+pub fn ncores() -> usize {
+    1
+}

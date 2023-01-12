@@ -1,5 +1,6 @@
 pub mod regs;
 
+use core::arch::global_asm;
 use regs::SavedState;
 
 pub struct Task {
@@ -16,4 +17,31 @@ impl Task {
             rsp: 0,
         }
     }
+
+    /*pub fn dispatch(&self) -> ! {
+        unsafe {
+            dispatch(&self.state as *const SavedState, self.rip, self.rsp);
+        }
+    }*/
+
+    pub fn dispatch_saving(&self) {
+        unsafe {
+            dispatch_saving(&self.state as *const SavedState, self.rip, self.rsp);
+        }
+    }
 }
+
+global_asm!(include_str!("dispatcher.s"));
+
+extern "C" {
+    //fn dispatch(ss: *const SavedState, rip: u64, rsp: u64) -> !;
+    fn dispatch_saving(ss: *const SavedState, rip: u64, rsp: u64);
+    //fn restore_kernel_state() -> !;
+}
+
+/*pub fn wrapper_restore_kernel_state() -> ! {
+    // Only because of RKS not being available outside of the module
+    unsafe {
+        restore_kernel_state();
+    }
+}*/
