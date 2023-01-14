@@ -14,6 +14,7 @@ mod bootstrap;
 mod desc;
 mod mem;
 mod panic;
+mod pd;
 mod tasks;
 mod term;
 mod utils;
@@ -49,6 +50,7 @@ pub extern "C" fn kmain(boot_info: &'static StivaleStruct) -> ! {
     print!("Final preps ");
     desc::tss::init();
     desc::idt::init2();
+    pd::init();
     println!("[OK]");
 
     println!("Bootstrapping...");

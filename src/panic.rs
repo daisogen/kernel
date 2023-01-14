@@ -8,6 +8,6 @@ fn panic(info: &PanicInfo) -> ! {
     // TODO: halt all threads
 
     term::set_color(term::Color::White, term::Color::Red);
-    println!("KERNEL PANIC\n{}", info);
+    println!("Guru Meditation\n{}", info);
     loop {}
 }

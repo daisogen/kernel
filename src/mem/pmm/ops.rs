@@ -70,7 +70,7 @@ pub fn calloc(npages: usize) -> Result<u64, ()> {
 
     let ret = ret.unwrap();
     unsafe {
-        compiler_builtins::mem::memset(ret as *mut u8, 0, PAGE_SIZE);
+        compiler_builtins::mem::memset(ret as *mut u8, 0, PAGE_SIZE * npages);
     }
     Ok(ret)
 }

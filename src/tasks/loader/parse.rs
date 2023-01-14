@@ -9,7 +9,8 @@ use hashbrown::HashMap;
 
 pub struct ELFInfo {
     pub pages: HashMap<u64, u64>,
-    pub entry: u64,
+    pub file: ElfBytes<'static, AnyEndian>,
+    pub base: Option<u64>,
 }
 
 pub fn parse(addr: u64, size: usize) -> Result<ELFInfo, Box<dyn error::Error>> {
@@ -22,7 +23,6 @@ pub fn parse(addr: u64, size: usize) -> Result<ELFInfo, Box<dyn error::Error>> {
         return Err(Box::new(LoaderError::NoPHDRs));
     }
     let phdrs = phdrs.unwrap();
-    let entry = file.ehdr.e_entry;
 
     let mut pages: HashMap<u64, u64> = HashMap::new();
     for i in phdrs {
@@ -33,10 +33,14 @@ pub fn parse(addr: u64, size: usize) -> Result<ELFInfo, Box<dyn error::Error>> {
         let mut vaddr = i.p_vaddr;
         let mut off = i.p_offset;
         let mut rem = i.p_filesz as usize;
-        let npages = npages!(i.p_memsz as usize);
+
+        let npages = page!(vaddr + i.p_memsz); // Final page
+        let npages = npages - page!(vaddr); // Minus first page
+        let npages = 1 + npages!(npages as usize);
         for _ in 0..npages {
             let page = page!(vaddr);
             let pageoff = pageoff!(vaddr);
+            let free = PAGE_SIZE - pageoff as usize;
 
             // If there's not a page allocated, get one
             if !pages.contains_key(&page) {
@@ -57,7 +61,7 @@ pub fn parse(addr: u64, size: usize) -> Result<ELFInfo, Box<dyn error::Error>> {
                 let dst = *pages.get(&page).unwrap();
                 let dst = (dst + pageoff) as *mut u8;
                 let src = (addr + off) as *const u8;
-                let n = core::cmp::min(rem, PAGE_SIZE - pageoff as usize);
+                let n = core::cmp::min(rem, free);
                 unsafe {
                     compiler_builtins::mem::memcpy(dst, src, n);
                 }
@@ -65,12 +69,13 @@ pub fn parse(addr: u64, size: usize) -> Result<ELFInfo, Box<dyn error::Error>> {
                 off += n as u64;
             }
 
-            vaddr += PAGE_SIZE as u64;
+            vaddr += free as u64;
         }
     }
 
     Ok(ELFInfo {
         pages: pages,
-        entry: entry,
+        file: file,
+        base: None,
     })
 }

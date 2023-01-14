@@ -1,8 +1,6 @@
 asm_pf:
     # Time to push everything in case we get back
-    # This can be an issue when allocating more stack !!!!!!!!!
-    # Should switch to another one!
-    # Or have it done already by ISTs
+    # We're on IST1 so no issues with the stack
     push r15
     push r14
     push r13

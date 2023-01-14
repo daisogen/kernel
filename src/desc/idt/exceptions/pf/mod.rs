@@ -4,6 +4,7 @@ use crate::mem::HH;
 use crate::page;
 use crate::print;
 use crate::println;
+use crate::utils::cpu::IRETQ;
 use core::arch::global_asm;
 
 global_asm!(include_str!("asm.s"));
@@ -19,11 +20,19 @@ pub fn get_asm_addr() -> u64 {
 const PFERR: &str = "PWURI";
 
 #[no_mangle]
-pub extern "C" fn pf_isr(err: u64, _rsp: u64) {
+pub extern "C" fn pf_isr(err: u64, rsp: u64) {
     let addr = crate::utils::regs::get_cr2();
+    let iretq = (rsp + 16 * 8) as *const IRETQ;
+    let iretq: &IRETQ = unsafe { &*iretq };
+    let culprit = iretq.rip;
+
+    if addr == culprit {
+        panic!("Page fault on jmp: {:#x}", addr);
+    }
+
     // Does this come from heap/stack regions?
     if addr >= HH {
-        let gbi = (addr - HH) / (1 << 30); // GB index
+        let gbi = (addr - HH) >> 30; // GB index
         if gbi % 2 == 1 {
             // GB index is odd, so surely heap/stack
             // Was it due to it not being present?
@@ -60,5 +69,5 @@ pub extern "C" fn pf_isr(err: u64, _rsp: u64) {
     }
     println!("]");
 
-    panic!("Unhandled page fault at: {:#x}", addr);
+    panic!("Unhandled page fault for {:#x} by {:#x}", addr, culprit);
 }

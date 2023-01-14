@@ -1,6 +1,7 @@
 mod color;
 pub mod drivers;
 
+use crate::utils::strptr2str;
 pub use color::Color;
 use core::fmt;
 use drivers::text::TEXT_WRITER;
@@ -26,6 +27,14 @@ pub fn _print(args: fmt::Arguments) {
     if TEXT_MODE {
         TEXT_WRITER.lock().write_fmt(args).unwrap();
     }
+}
+
+pub extern "C" fn _print_str(strptr: u64, size: usize) {
+    let name = strptr2str(strptr, size);
+    if name.is_err() {
+        return;
+    }
+    print!("{}", name.unwrap());
 }
 
 // Abstractions
