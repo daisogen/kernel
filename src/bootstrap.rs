@@ -16,8 +16,6 @@ pub fn run() -> ! {
 
         println!("[OK]");
     }
-    println!("Bootstrapping finished");
-    println!("Launching init");
 
-    panic!("init returned");
+    todo!("should schedule()");
 }

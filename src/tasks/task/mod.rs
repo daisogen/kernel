@@ -36,12 +36,12 @@ global_asm!(include_str!("dispatcher.s"));
 extern "C" {
     //fn dispatch(ss: *const SavedState, rip: u64, rsp: u64) -> !;
     fn dispatch_saving(ss: *const SavedState, rip: u64, rsp: u64);
-    //fn restore_kernel_state() -> !;
+    pub fn try_restore_kernel_state() -> u64;
 }
 
-/*pub fn wrapper_restore_kernel_state() -> ! {
-    // Only because of RKS not being available outside of the module
+pub fn try_restore() {
+    // Just because it's inaccessible from the outside
     unsafe {
-        restore_kernel_state();
+        try_restore_kernel_state();
     }
-}*/
+}

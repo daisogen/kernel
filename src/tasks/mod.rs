@@ -1,5 +1,5 @@
 pub mod loader;
-//pub mod scheduler;
+pub mod scheduler;
 pub mod task;
 
 use alloc::vec::Vec;

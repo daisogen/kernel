@@ -1,6 +1,11 @@
 saved_regs: .quad 0, 0, 0, 0, 0, 0
 saved_rsp: .quad 0
 
+try_restore_kernel_state:
+    mov rax, qword ptr [rip + saved_rsp]
+    test rax, rax
+    jnz restore_kernel_state
+    ret
 restore_kernel_state:
     mov rsp, qword ptr [rip + saved_rsp]
     lea rax, [rip + saved_regs]

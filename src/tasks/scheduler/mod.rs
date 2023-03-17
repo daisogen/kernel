@@ -10,7 +10,7 @@ lazy_static! {
     static ref PRESENT: Mutex<HashSet<PID>> = Mutex::new(HashSet::new());
 }
 
-pub fn add(pid: PID) {
+/*pub fn add(pid: PID) {
     let mut plock = PRESENT.lock();
     if plock.contains(&pid) {
         return;
@@ -19,9 +19,12 @@ pub fn add(pid: PID) {
     let mut rrlock = RR.lock();
     rrlock.push_back(pid);
     plock.insert(pid);
-}
+}*/
 
 pub fn schedule() -> ! {
+    // Is there kernel saved state?
+    crate::tasks::task::try_restore();
+
     let mut pid: PID = 0;
     {
         let mut plock = PRESENT.lock();

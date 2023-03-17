@@ -43,6 +43,7 @@ pub fn init() {
 
     // Now fill some values
     set3("print", crate::term::_print_str as u64);
+    set3("yld", crate::tasks::scheduler::schedule as u64);
 }
 
 pub extern "C" fn get(strptr: u64, sz: usize) -> u64 {
