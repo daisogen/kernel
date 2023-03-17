@@ -11,9 +11,9 @@ pub fn alloc(npages: usize) -> Result<u64, ()> {
 
         // Working with a region
         let got = alloc_in_region(frame, npages);
-        if got.is_ok() {
+        if let Ok(got) = got {
             // Got it
-            return Ok(frame.first + (got.unwrap() * PAGE_SIZE) as u64);
+            return Ok(frame.first + (got * PAGE_SIZE) as u64);
         }
 
         ptr = unsafe { ptr.add(1) };
@@ -31,10 +31,7 @@ fn alloc_in_region(frame: &Frame, want: usize) -> Result<usize, ()> {
     let ptr = frame as *const Frame as u64;
     let ptr = ptr + core::mem::size_of::<Frame>() as u64;
     let ptr = ptr as *mut u8;
-    let bm: Bitmap = Bitmap {
-        ptr: ptr,
-        sz: pages,
-    };
+    let bm: Bitmap = Bitmap { ptr, sz: pages };
 
     // Let's start looking
     let mut cur = 0;

@@ -63,7 +63,7 @@ pub fn add_tss(ptr: u64) -> u16 {
     let id = *locked;
     *locked += 2;
 
-    let entry = tss::TSSGDTEntry { ptr: ptr };
+    let entry = tss::TSSGDTEntry { ptr };
     unsafe {
         (GDT.entries[id], GDT.entries[id + 1]) = entry.real().raw();
         GDTR.limit = (*locked as u16 * 8) - 1;

@@ -7,7 +7,7 @@ extern "C" {
 }
 
 pub fn get_asm_addr() -> u64 {
-    return asm_ud as u64;
+    asm_ud as u64
 }
 
 #[no_mangle]

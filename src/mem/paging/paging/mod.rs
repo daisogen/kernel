@@ -50,8 +50,8 @@ impl Paging {
 
     pub fn newmap(virt: u64, phys: u64) -> Map {
         Map {
-            virt: virt,
-            phys: phys,
+            virt,
+            phys,
             npages: 1,
             global: false,
             ro: false,

@@ -100,10 +100,10 @@ extern "C" {
 
 fn set_vector(v: usize, addr: u64, seg: u16, ist: u32, dpl: u32) {
     let gate = Gate {
-        addr: addr,
+        addr,
         seg: seg as u32,
-        ist: ist,
-        dpl: dpl,
+        ist,
+        dpl,
     }
     .real()
     .raw();

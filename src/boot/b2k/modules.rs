@@ -2,7 +2,6 @@
 
 use super::find_tag;
 use crate::boot::structures::*;
-use alloc::format;
 use alloc::string::String;
 use alloc::vec::Vec;
 use spin::Mutex;
@@ -56,13 +55,13 @@ pub fn parse_modules(boot_info: &StivaleStruct) {
         let mut split = sid.split(' ');
         let ids = split.next().expect("invalid module string");
         let id = ids.parse::<usize>();
-        let id = id.expect(&format!("module {} is not a number", ids));
+        let id = id.unwrap_or_else(|_| panic!("module {} is not a number", ids));
         let name = split
             .next()
-            .expect(&format!("module string for {} has no name", id));
+            .unwrap_or_else(|| panic!("module string for {} has no name", id));
 
         modules.push(Module {
-            id: id,
+            id,
             name: String::from(name),
             begin: module.begin,
             end: module.end,

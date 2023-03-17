@@ -30,7 +30,7 @@ fn alloc_pid() -> PID {
         return ret;
     }
 
-    return pids.pop().unwrap();
+    pids.pop().unwrap()
 }
 
 fn pid_to_base(pid: PID) -> u64 {
@@ -38,9 +38,9 @@ fn pid_to_base(pid: PID) -> u64 {
 }
 
 pub fn get_task(pid: PID) -> &'static Task {
-    return unsafe { &TASKS[pid] };
+    unsafe { &TASKS[pid] }
 }
 
 pub fn get_mut_task(pid: PID) -> &'static mut Task {
-    return unsafe { &mut TASKS[pid] };
+    unsafe { &mut TASKS[pid] }
 }

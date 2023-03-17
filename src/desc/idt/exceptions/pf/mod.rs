@@ -14,7 +14,7 @@ extern "C" {
 }
 
 pub fn get_asm_addr() -> u64 {
-    return asm_pf as u64;
+    asm_pf as u64
 }
 
 const PFERR: &str = "PWURI";

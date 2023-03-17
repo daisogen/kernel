@@ -30,11 +30,11 @@ pub fn schedule() -> ! {
         let mut plock = PRESENT.lock();
         let mut rrlock = RR.lock();
         let out = rrlock.pop_front();
-        if out.is_some() {
-            pid = out.unwrap();
+        if let Some(out) = out {
+            pid = out;
             plock.remove(&pid);
         }
-    };
+    }; // Artificial block to scope locks
 
     if pid == 0 {
         todo!("Nothing to do");

@@ -74,8 +74,8 @@ pub fn parse(addr: u64, size: usize) -> Result<ELFInfo, Box<dyn error::Error>> {
     }
 
     Ok(ELFInfo {
-        pages: pages,
-        file: file,
+        pages,
+        file,
         base: None,
     })
 }

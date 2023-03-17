@@ -15,7 +15,7 @@ fn find_tag(boot_info: &StivaleStruct, theid: u64) -> Option<*const StivaleTag> 
         }
 
         ptr = tag.next;
-        if ptr == core::ptr::null() {
+        if ptr.is_null() {
             return None;
         }
     }
