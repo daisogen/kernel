@@ -1,8 +1,5 @@
-use super::errors::LoaderError;
 use crate::mem::{pmm, PAGE_SIZE};
 use crate::{npages, page, pageoff};
-use alloc::boxed::Box;
-use core::error;
 use elf::endian::AnyEndian;
 use elf::ElfBytes;
 use hashbrown::HashMap;
@@ -13,16 +10,12 @@ pub struct ELFInfo {
     pub base: Option<u64>,
 }
 
-pub fn parse(addr: u64, size: usize) -> Result<ELFInfo, Box<dyn error::Error>> {
+pub fn parse(addr: u64, size: usize) -> anyhow::Result<ELFInfo> {
     let ptr = addr as *const u8;
     let slice: &[u8] = unsafe { core::slice::from_raw_parts(ptr, size) };
 
-    let file = ElfBytes::<AnyEndian>::minimal_parse(slice)?;
-    let phdrs = file.segments();
-    if phdrs.is_none() {
-        return Err(Box::new(LoaderError::NoPHDRs));
-    }
-    let phdrs = phdrs.unwrap();
+    let file = ElfBytes::<AnyEndian>::minimal_parse(slice).map_err(anyhow::Error::msg)?;
+    let Some(phdrs) = file.segments() else { anyhow::bail!("No program headers"); };
 
     let mut pages: HashMap<u64, u64> = HashMap::new();
     for i in phdrs {
@@ -50,7 +43,7 @@ pub fn parse(addr: u64, size: usize) -> Result<ELFInfo, Box<dyn error::Error>> {
                         pmm::free(*v, 1);
                     }
 
-                    return Err(Box::new(LoaderError::OOM));
+                    anyhow::bail!("Out of memory");
                 }
 
                 pages.insert(page, phys.unwrap());

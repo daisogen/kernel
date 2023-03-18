@@ -1,15 +1,11 @@
-mod errors;
 mod parse;
 mod reloc;
 
 use super::PID;
 use crate::mem::paging::{Paging, PAGING};
 use crate::mem::pmm;
-use alloc::boxed::Box;
-use core::error;
-use errors::LoaderError;
 
-pub fn load(addr: u64, size: usize) -> Result<PID, Box<dyn error::Error>> {
+pub fn load(addr: u64, size: usize) -> anyhow::Result<PID> {
     let mut info = parse::parse(addr, size)?;
     let pid = super::alloc_pid();
     let base = super::pid_to_base(pid);
@@ -27,7 +23,7 @@ pub fn load(addr: u64, size: usize) -> Result<PID, Box<dyn error::Error>> {
                 pmm::free(*v, 1);
             }
 
-            return Err(Box::new(LoaderError::OOM));
+            anyhow::bail!("Out of memory");
         }
     }
 

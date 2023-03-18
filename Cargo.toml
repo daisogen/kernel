@@ -13,3 +13,4 @@ bitfield = "0.14.0"
 good_memory_allocator = "0.1.7"
 elf = { "git" = "https://github.com/cole14/rust-elf", "default-features" = false, "features" = ["nightly"] }
 hashbrown = "0.13.1"
+anyhow = { "version" = "1.0.69", "default-features" = false }
