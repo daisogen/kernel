@@ -9,6 +9,8 @@ extern crate bitfield;
 extern crate alloc;
 extern crate compiler_builtins;
 
+mod acpi;
+mod apic;
 mod boot;
 mod bootstrap;
 mod desc;
@@ -50,6 +52,8 @@ pub extern "C" fn kmain(boot_info: &'static StivaleStruct) -> ! {
     print!("Final preps ");
     desc::tss::init();
     desc::idt::init2();
+    acpi::parse(boot_info);
+    apic::init();
     pd::init();
     println!("[OK]");
 

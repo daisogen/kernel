@@ -2,6 +2,7 @@
 
 pub const MEMORY_MAP_ID: u64 = 0x2187f79e8612de07;
 pub const MODULES_ID: u64 = 0x4b6fe466aade04ce;
+pub const RSDP_ID: u64 = 0x9e1786930a375e78;
 
 // ---
 
@@ -48,6 +49,12 @@ pub struct StivaleModule {
     pub begin: u64,
     pub end: u64,
     pub string: [u8; 128],
+}
+
+#[repr(C, packed)]
+pub struct StivaleRSDP {
+    pub tag: StivaleTag,
+    pub rsdp: u64,
 }
 
 pub const STIVALE2_MMAP_USABLE: u32 = 1;

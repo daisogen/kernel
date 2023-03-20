@@ -20,3 +20,10 @@ fn find_tag(boot_info: &StivaleStruct, theid: u64) -> Option<*const StivaleTag> 
         }
     }
 }
+
+pub fn get_rsdp(boot_info: &StivaleStruct) -> u64 {
+    let rsdp = find_tag(boot_info, RSDP_ID);
+    let rsdp = rsdp.expect("ACPI: no RSDP from bootloader");
+    let rsdp = unsafe { &*(rsdp as *const StivaleRSDP) };
+    rsdp.rsdp
+}
