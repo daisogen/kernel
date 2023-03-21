@@ -46,9 +46,9 @@ pub fn init() {
     set3("yld", crate::tasks::scheduler::schedule as u64);
     set3(
         "ioapic_redirect_irq",
-        crate::apic::ioapic::_set_irq_redirection as u64,
+        crate::drivers::apic::ioapic::_set_irq_redirection as u64,
     );
-    set3("unmask", crate::apic::ioapic::_unmask as u64);
+    set3("unmask", crate::drivers::apic::ioapic::_unmask as u64);
 }
 
 pub extern "C" fn get(strptr: u64, sz: usize) -> u64 {

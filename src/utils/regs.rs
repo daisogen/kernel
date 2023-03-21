@@ -63,8 +63,8 @@ pub fn wrmsr(msr: u32, v: u64) {
     }
 }
 
-// inb would be here
-pub fn outb(port: u16, value: u8) {
+// in8 would be here
+pub fn out8(port: u16, value: u8) {
     unsafe {
         asm!("out dx, al",
              in("dx") port,

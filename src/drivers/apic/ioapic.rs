@@ -1,5 +1,5 @@
 use super::consts::*;
-use crate::acpi;
+use crate::drivers::acpi;
 use crate::mem::paging;
 use alloc::{vec, vec::Vec};
 use spin::Mutex;
@@ -108,7 +108,7 @@ fn write_redirection(gsi: u32, val: u64) {
     write_reg(reg + 1, (val >> 32) as u32);
 }
 
-fn set_irq_redirection(lapic_id: u32, vec: u8, irq: u8) {
+pub fn set_irq_redirection(lapic_id: u32, vec: u8, irq: u8) {
     let (gsi, low, level) = irq2gsi(irq);
 
     let mut flags: u64 = MASKED;

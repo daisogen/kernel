@@ -10,8 +10,8 @@ static PIC_DISABLED: Mutex<bool> = Mutex::new(false);
 fn disable_pic() {
     let mut locked = PIC_DISABLED.lock();
     if !*locked {
-        regs::outb(0xA1, 0xFF);
-        regs::outb(0x21, 0xFF);
+        regs::out8(0xA1, 0xFF);
+        regs::out8(0x21, 0xFF);
         *locked = true;
     }
 }
