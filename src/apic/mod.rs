@@ -1,7 +1,9 @@
 mod consts;
+pub mod ioapic;
 
 use crate::mem::paging::PAGING;
 use crate::utils::regs;
+use consts::*;
 use spin::Mutex;
 
 static PIC_DISABLED: Mutex<bool> = Mutex::new(false);
@@ -20,23 +22,23 @@ fn is_supported() -> bool {
 }
 
 fn read_reg(off: u64) -> u32 {
-    return unsafe { *((consts::ADDRESS + off) as *const u32) };
+    return unsafe { *((ADDRESS + off) as *const u32) };
 }
 
 fn write_reg(off: u64, val: u32) {
     unsafe {
-        *((consts::ADDRESS + off) as *mut u32) = val;
+        *((ADDRESS + off) as *mut u32) = val;
     }
 }
 
 static MAPPED: Mutex<bool> = Mutex::new(false);
 fn enable_lapic() {
-    let base = regs::rdmsr(consts::BASE_MSR);
-    let base = base | consts::LAPIC_ENABLE;
+    let base = regs::rdmsr(BASE_MSR);
+    let base = base | LAPIC_ENABLE;
 
     // Get APIC base address and map it to virtual memory
     let address = crate::page!(base);
-    assert_eq!(address, consts::ADDRESS, "APIC: weird address");
+    assert_eq!(address, ADDRESS, "APIC: weird address");
     {
         let mut lock = MAPPED.lock();
         if !*lock && PAGING.lock().get_ptr(address).is_some() {
@@ -49,12 +51,12 @@ fn enable_lapic() {
     } // Artificial scope
 
     // Make sure it's on
-    regs::wrmsr(consts::BASE_MSR, base);
+    regs::wrmsr(BASE_MSR, base);
 
     // Set SIVR bit 8 to start receiving interrupts
-    let sivr: u32 = read_reg(consts::SIVR_OFFSET);
+    let sivr: u32 = read_reg(SIVR_OFFSET);
     let sivr = sivr | (1 << 8);
-    write_reg(consts::SIVR_OFFSET, sivr);
+    write_reg(SIVR_OFFSET, sivr);
 }
 
 pub fn init() {
@@ -63,5 +65,5 @@ pub fn init() {
     }
     disable_pic();
     enable_lapic();
-    // Init IOAPIC here
+    ioapic::init();
 }

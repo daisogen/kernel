@@ -3,7 +3,7 @@ mod structures;
 use crate::mem::{paging, PAGE_SIZE};
 use alloc::{vec, vec::Vec};
 use spin::Mutex;
-use structures::*;
+pub use structures::*;
 
 macro_rules! u8checksum {
     ($expr:expr, $ty:ty) => {{
@@ -39,7 +39,7 @@ fn map_sdtheader(ptr: u64) -> &'static SDTHeader {
     header
 }
 
-static RSDTPTRS: Mutex<Vec<&'static SDTHeader>> = Mutex::new(vec![]);
+static RSDTPTRS: Mutex<Vec<&SDTHeader>> = Mutex::new(vec![]);
 
 pub fn parse(boot_info: &crate::boot::structures::StivaleStruct) {
     // Grab RSDP from bootloader
