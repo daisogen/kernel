@@ -57,6 +57,7 @@ pub extern "C" fn kmain(boot_info: &'static StivaleStruct) -> ! {
     println!("[OK]");
 
     println!("Bootstrapping...");
+    utils::regs::sti();
     boot::b2k::parse_modules(boot_info);
     bootstrap::run();
     // That does not return

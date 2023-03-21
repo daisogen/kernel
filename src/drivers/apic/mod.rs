@@ -31,6 +31,10 @@ fn write_reg(off: u64, val: u32) {
     }
 }
 
+pub extern "C" fn eoi() {
+    write_reg(EOI_OFFSET, 0);
+}
+
 static MAPPED: Mutex<bool> = Mutex::new(false);
 fn enable_lapic() {
     let base = regs::rdmsr(BASE_MSR);
@@ -46,6 +50,7 @@ fn enable_lapic() {
         }
         let mut map = crate::mem::paging::Paging::newmap(address, address);
         map.nx = true;
+        map.pcd = true;
         PAGING.lock().map(map).unwrap();
         *lock = true;
     } // Artificial scope

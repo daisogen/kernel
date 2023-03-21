@@ -108,8 +108,28 @@ fn write_redirection(gsi: u32, val: u64) {
     write_reg(reg + 1, (val >> 32) as u32);
 }
 
-pub fn set_irq_redirection(lapic_id: u32, vec: u8, irq: u8) {
+// ---
+
+fn next_lapic_id() -> u32 {
+    /*
+    This would be made to return a RR assignment in order
+    to keep IRQs balanced across threads.
+    */
+    crate::utils::whoami() as u32
+}
+
+static FREE_VEC: Mutex<u8> = Mutex::new(0x20);
+pub fn next_vec() -> u8 {
+    let mut lock = FREE_VEC.lock();
+    let ret = *lock;
+    *lock += 1;
+    ret
+}
+
+pub fn set_irq_redirection(irq: u8) -> (u32, u8) {
     let (gsi, low, level) = irq2gsi(irq);
+    let lapic_id = next_lapic_id();
+    let vec = next_vec();
 
     let mut flags: u64 = MASKED;
     if low {
@@ -121,11 +141,14 @@ pub fn set_irq_redirection(lapic_id: u32, vec: u8, irq: u8) {
 
     let entry: u64 = (vec as u64) | flags | ((lapic_id as u64) << LID_SHIFT);
     write_redirection(gsi, entry);
+    (gsi, vec)
 }
 
 // FFI version
-pub extern "C" fn _set_irq_redirection(lapic_id: usize, vec: usize, irq: usize) {
-    set_irq_redirection(lapic_id as u32, vec as u8, irq as u8);
+pub extern "C" fn _set_irq_redirection(irq: usize) -> usize {
+    let (gsi, vec) = set_irq_redirection(irq as u8);
+    let gsi = (gsi as usize) << 8;
+    gsi | (vec as usize)
 }
 
 /*fn mask(gsi: u32) {

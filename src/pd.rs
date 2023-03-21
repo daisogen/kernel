@@ -49,6 +49,12 @@ pub fn init() {
         crate::drivers::apic::ioapic::_set_irq_redirection as u64,
     );
     set3("unmask", crate::drivers::apic::ioapic::_unmask as u64);
+    set3("set_vector", crate::desc::idt::_set_vector as u64);
+    set3("eoi", crate::drivers::apic::eoi as u64);
+    set3(
+        "set_simple_vector",
+        crate::desc::idt::default_isr::_set_wrapped_isr as u64,
+    );
 }
 
 pub extern "C" fn get(strptr: u64, sz: usize) -> u64 {

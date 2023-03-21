@@ -4,7 +4,7 @@
     _isr\x:
         mov rdi, \x
         call default_isr
-        hlt
+        iretq
 .endmacro
 
 .set i, 0

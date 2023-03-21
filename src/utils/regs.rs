@@ -72,3 +72,15 @@ pub fn out8(port: u16, value: u8) {
              options(nostack, preserves_flags));
     }
 }
+
+pub fn cli() {
+    unsafe {
+        core::arch::asm!("cli", options(nostack));
+    }
+}
+
+pub fn sti() {
+    unsafe {
+        core::arch::asm!("sti", options(nostack));
+    }
+}

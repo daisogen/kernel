@@ -1,4 +1,4 @@
-mod default_isr;
+pub mod default_isr;
 pub mod exceptions;
 
 use crate::desc::gdt::KCODE;
@@ -74,18 +74,16 @@ static mut IDTR: IDTRstruct = IDTRstruct {
 
 struct Gate {
     addr: u64,
-    seg: u32,
     ist: u32,
-    dpl: u32,
 }
 
 impl Gate {
     pub fn real(&self) -> RealGate {
         let mut ret: RealGate = RealGate::new();
         ret.set_wholeaddr(self.addr);
-        ret.set_seg(self.seg);
+        ret.set_seg(KCODE as u32); // Daisogen
         ret.set_ist(self.ist);
-        ret.set_dpl(self.dpl);
+        ret.set_dpl(0); // Daisogen
         ret
     }
 }
@@ -98,15 +96,8 @@ extern "C" {
     static ISRS: [u64; IDT_ENTRIES];
 }
 
-fn set_vector(v: usize, addr: u64, seg: u16, ist: u32, dpl: u32) {
-    let gate = Gate {
-        addr,
-        seg: seg as u32,
-        ist,
-        dpl,
-    }
-    .real()
-    .raw();
+pub fn set_vector(v: usize, addr: u64, ist: u32) {
+    let gate = Gate { addr, ist }.real().raw();
 
     let msbb = (gate >> 64) as u64;
     let lsbb = (gate & ((1 << 64) - 1)) as u64;
@@ -116,28 +107,20 @@ fn set_vector(v: usize, addr: u64, seg: u16, ist: u32, dpl: u32) {
     }
 }
 
+// FFI version
+pub extern "C" fn _set_vector(v: usize, addr: usize, ist: usize) {
+    set_vector(v, addr as u64, ist as u32);
+}
+
 pub fn init() {
     // Put ISRs
     for i in 0..256 {
-        set_vector(i, unsafe { ISRS[i] }, KCODE, 0, 0);
+        set_vector(i, unsafe { ISRS[i] }, 0);
     }
 
     // Customs
-    set_vector(
-        exceptions::EXCEPTION_UD,
-        exceptions::ud::get_asm_addr(),
-        KCODE,
-        0,
-        0,
-    );
-
-    set_vector(
-        exceptions::EXCEPTION_PF,
-        exceptions::pf::get_asm_addr(),
-        KCODE,
-        0,
-        0,
-    );
+    set_vector(exceptions::EXCEPTION_UD, exceptions::ud::get_asm_addr(), 0);
+    set_vector(exceptions::EXCEPTION_PF, exceptions::pf::get_asm_addr(), 0);
 
     unsafe {
         switchIDT(&IDTR);
@@ -150,9 +133,7 @@ pub fn init2() {
     set_vector(
         exceptions::EXCEPTION_PF,
         exceptions::pf::get_asm_addr(),
-        KCODE,
         crate::desc::tss::IST_PF as u32,
-        0,
     );
 
     unsafe {

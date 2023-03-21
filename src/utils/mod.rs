@@ -26,3 +26,7 @@ pub static NCORES: Mutex<usize> = Mutex::new(1);
 pub fn ncores() -> usize {
     *NCORES.lock()
 }
+
+pub fn whoami() -> usize {
+    (unsafe { core::arch::x86_64::__cpuid(0x01) }.ebx >> 24) as usize
+}
