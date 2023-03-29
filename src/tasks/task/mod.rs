@@ -1,7 +1,8 @@
+pub mod futex;
 pub mod regs;
+pub mod tls;
 
 use core::arch::global_asm;
-use hashbrown::HashSet;
 use regs::SavedState;
 
 pub struct Task {
@@ -9,8 +10,8 @@ pub struct Task {
     pub rip: u64,
     pub rsp: u64,
 
-    // TODO: free these when the task exits
-    pub mutexes: HashSet<u64>,
+    pub futexes: futex::Futexes,
+    pub tls: tls::TLS,
 }
 
 impl Task {
@@ -20,13 +21,16 @@ impl Task {
             rip: 0,
             rsp: 0,
 
-            mutexes: HashSet::new(),
+            futexes: futex::Futexes::new(),
+            tls: tls::TLS::new(),
         }
     }
 
     fn mypid(&self) -> super::PID {
         super::base_to_pid(self.rsp)
     }
+
+    // clone() would be here for starting new threads
 
     /*pub fn dispatch(&self) -> ! {
         unsafe {

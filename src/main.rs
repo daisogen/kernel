@@ -13,7 +13,6 @@ mod boot;
 mod bootstrap;
 mod desc;
 mod drivers;
-mod futex;
 mod mem;
 mod panic;
 mod pd;

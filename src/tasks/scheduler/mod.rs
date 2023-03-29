@@ -11,19 +11,6 @@ lazy_static! {
     static ref RR: Mutex<VecDeque<PID>> = Mutex::new(VecDeque::new());
     // Faster way to check if a PID is runnable
     static ref PRESENT: Mutex<HashSet<PID>> = Mutex::new(HashSet::new());
-
-    // Dispatcher sets this
-    pub static ref RUNNING: Mutex<Vec<PID>> = {
-        // RUNNING is accessed once IOAPIC has been initialized, and thus
-        // ncores() returns the right value :)
-        let mut v: Vec<PID> = Vec::new();
-        v.resize(crate::utils::ncores(), 0);
-        Mutex::new(v)
-    };
-}
-
-pub fn get_running() -> PID {
-    RUNNING.lock()[crate::utils::whoami()]
 }
 
 pub fn add(pid: PID) {
@@ -59,4 +46,29 @@ pub fn schedule() -> ! {
     println!("Boutta execute {}", pid);
 
     panic!("Hello");
+}
+
+// ---
+
+lazy_static! {
+    // Dispatcher sets this
+    pub static ref RUNNING: Mutex<Vec<PID>> = {
+        // RUNNING is accessed once IOAPIC has been initialized, and thus
+        // ncores() returns the right value :)
+        let mut v: Vec<PID> = Vec::new();
+        v.resize(crate::utils::ncores(), 0);
+        Mutex::new(v)
+    };
+}
+
+pub fn running() -> PID {
+    RUNNING.lock()[crate::utils::whoami()]
+}
+
+/*pub fn running_task() -> &'static super::Task {
+    super::get_task(running())
+}*/
+
+pub fn running_mut_task() -> &'static mut super::Task {
+    super::get_mut_task(running())
 }

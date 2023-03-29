@@ -41,7 +41,7 @@ pub fn init() {
         *ptr = set as u64;
     }
 
-    // Now fill some values
+    // --- Now fill some values ---
     set3("print", crate::term::_print_str as u64);
     set3("yld", crate::tasks::scheduler::schedule as u64);
     set3(
@@ -55,9 +55,18 @@ pub fn init() {
         "set_simple_vector",
         crate::desc::idt::default_isr::_set_wrapped_isr as u64,
     );
-    set3("futex_new", crate::futex::new as u64);
-    set3("futex_wait", crate::futex::wait as u64);
-    set3("futex_wake", crate::futex::wake_one as u64);
+
+    set3("futex_new", crate::tasks::task::futex::ffi::new as u64);
+    set3("futex_wait", crate::tasks::task::futex::ffi::wait as u64);
+    set3(
+        "futex_wake",
+        crate::tasks::task::futex::ffi::wake_one as u64,
+    );
+
+    set3("tls_crate", crate::tasks::task::tls::ffi::create as u64);
+    set3("tls_set", crate::tasks::task::tls::ffi::set as u64);
+    set3("tls_get", crate::tasks::task::tls::ffi::get as u64);
+    set3("tls_destroy", crate::tasks::task::tls::ffi::destroy as u64);
 }
 
 pub extern "C" fn get(strptr: u64, sz: usize) -> u64 {
