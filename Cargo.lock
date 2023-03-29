@@ -55,7 +55,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1651659e016ea4259760966432aebcc96c81e26743fb018c59585ddd677127e"
 dependencies = [
  "either",
- "spin 0.9.4",
+ "spin 0.9.6",
 ]
 
 [[package]]
@@ -77,7 +77,7 @@ dependencies = [
  "good_memory_allocator",
  "hashbrown",
  "lazy_static",
- "spin 0.5.2",
+ "spin 0.9.6",
 ]
 
 [[package]]
@@ -119,9 +119,9 @@ checksum = "6e63cff320ae2c57904679ba7cb63280a3dc4613885beafb148ee7bf9aa9042d"
 
 [[package]]
 name = "spin"
-version = "0.9.4"
+version = "0.9.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f6002a767bff9e83f8eeecf883ecb8011875a21ae8da43bffb817a57e78cc09"
+checksum = "b5d6e0250b93c8427a177b849d144a96d5acc57006149479403d7861ab721e34"
 dependencies = [
  "lock_api",
 ]

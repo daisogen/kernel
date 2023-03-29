@@ -120,6 +120,7 @@ pub fn init() {
 
     // Customs
     set_vector(exceptions::EXCEPTION_UD, exceptions::ud::get_asm_addr(), 0);
+    set_vector(exceptions::EXCEPTION_GP, exceptions::gp::get_asm_addr(), 0);
     set_vector(exceptions::EXCEPTION_PF, exceptions::pf::get_asm_addr(), 0);
 
     unsafe {

@@ -1,12 +1,16 @@
 pub mod regs;
 
 use core::arch::global_asm;
+use hashbrown::HashSet;
 use regs::SavedState;
 
 pub struct Task {
     pub state: SavedState,
     pub rip: u64,
     pub rsp: u64,
+
+    // TODO: free these when the task exits
+    pub mutexes: HashSet<u64>,
 }
 
 impl Task {
@@ -15,7 +19,13 @@ impl Task {
             state: SavedState::new(),
             rip: 0,
             rsp: 0,
+
+            mutexes: HashSet::new(),
         }
+    }
+
+    fn mypid(&self) -> super::PID {
+        super::base_to_pid(self.rsp)
     }
 
     /*pub fn dispatch(&self) -> ! {
@@ -25,6 +35,7 @@ impl Task {
     }*/
 
     pub fn dispatch_saving(&self) {
+        super::scheduler::RUNNING.lock()[crate::utils::whoami()] = self.mypid();
         unsafe {
             dispatch_saving(&self.state as *const SavedState, self.rip, self.rsp);
         }

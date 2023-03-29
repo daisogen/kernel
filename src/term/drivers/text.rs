@@ -88,7 +88,13 @@ impl Writer for TextWriter {
     }
 
     fn clear(&mut self) {
-        todo!();
+        // Clear all rows and move cursor to the top
+        for i in 0..BUFFER_HEIGHT {
+            self.clear_row(i);
+        }
+
+        self.col = 0;
+        self.row = 0;
     }
 
     fn set_color(&mut self, fg: Color, bg: Color) {

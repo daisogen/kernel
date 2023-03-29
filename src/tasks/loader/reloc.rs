@@ -20,38 +20,55 @@ pub fn solve_relocations(info: &ELFInfo) -> anyhow::Result<()> {
     Ok(())
 }
 
+// https://docs.rs/elf/0.7.2/src/elf/abi.rs.html#2594
 fn solve_rela(info: &ELFInfo, sh: &SectionHeader) -> anyhow::Result<()> {
     let relas = info
         .file
         .section_data_as_relas(sh)
         .map_err(anyhow::Error::msg)?;
     for i in relas {
-        let r: anyhow::Result<()> = match i.r_type {
-            elf::abi::R_X86_64_RELATIVE => solve_r_x86_64_relative(info, &i),
-            _ => Err(anyhow::anyhow!("Enigma relocation")),
+        let r = match i.r_type {
+            elf::abi::R_X86_64_RELATIVE => solve_r_x86_64_ba(info, &i),
+            elf::abi::R_X86_64_GLOB_DAT => solve_r_x86_64_s(info, &i),
+            x => Err(anyhow::anyhow!("Enigma relocation: {:?}", x)),
+        }?;
+
+        // Get physical address of this relocation
+        let Some(phys) = info.pages.get(&page!(i.r_offset)) else {
+            anyhow::bail!("Out of range");
         };
-        r?;
+        let phys = phys + pageoff!(i.r_offset);
+
+        if phys % 8 != 0 {
+            anyhow::bail!("Unaligned address");
+        }
+
+        // Now actually write
+        unsafe {
+            *(phys as *mut u64) = r;
+        }
     }
 
     Ok(())
 }
 
-fn solve_r_x86_64_relative(info: &ELFInfo, sh: &Rela) -> anyhow::Result<()> {
+fn solve_r_x86_64_ba(info: &ELFInfo, rel: &Rela) -> anyhow::Result<u64> {
     // [offset] = base + addend
-    let Some(phys) = info.pages.get(&page!(sh.r_offset)) else {
-        anyhow::bail!("Out of range");
+    Ok(info.base.unwrap() + rel.r_addend as u64)
+}
+
+fn solve_r_x86_64_s(info: &ELFInfo, rel: &Rela) -> anyhow::Result<u64> {
+    // [offset] = value of symbol
+    let symbols = info
+        .file
+        .dynamic_symbol_table()
+        .map_err(anyhow::Error::msg)?;
+    let Some(symbols) = symbols else {
+        anyhow::bail!("No symbols");
     };
-    let phys = phys + pageoff!(sh.r_offset);
-
-    if phys % 8 != 0 {
-        anyhow::bail!("Unaligned address");
-    }
-
-    // It's possible to mess this up by having a really big addend,
-    // think ~0, but this is Daisogen: it really doesn't matter
-    unsafe {
-        *(phys as *mut u64) = info.base.unwrap() + sh.r_addend as u64;
-    }
-
-    Ok(())
+    let symbols = symbols.0; // Don't care about names (.1)
+    let symbol = symbols
+        .get(rel.r_sym as usize)
+        .map_err(anyhow::Error::msg)?;
+    Ok(symbol.st_value)
 }

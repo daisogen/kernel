@@ -75,8 +75,8 @@ pub fn init() {
     map.pcd = true;
     paging::PAGING.lock().map(map).unwrap();
 
-    // Save this
-    *crate::utils::NCORES.lock() = ncores;
+    // Save ncores now (very valuable information)
+    crate::utils::NCORES.call_once(|| ncores);
 }
 
 // ---

@@ -1,16 +1,32 @@
 use crate::println;
 use crate::tasks::PID;
-use alloc::collections::vec_deque::VecDeque;
+use alloc::collections::VecDeque;
+use alloc::vec::Vec;
 use hashbrown::HashSet;
 use lazy_static::lazy_static;
 use spin::Mutex;
 
 lazy_static! {
+    // The round-robin
     static ref RR: Mutex<VecDeque<PID>> = Mutex::new(VecDeque::new());
+    // Faster way to check if a PID is runnable
     static ref PRESENT: Mutex<HashSet<PID>> = Mutex::new(HashSet::new());
+
+    // Dispatcher sets this
+    pub static ref RUNNING: Mutex<Vec<PID>> = {
+        // RUNNING is accessed once IOAPIC has been initialized, and thus
+        // ncores() returns the right value :)
+        let mut v: Vec<PID> = Vec::new();
+        v.resize(crate::utils::ncores(), 0);
+        Mutex::new(v)
+    };
 }
 
-/*pub fn add(pid: PID) {
+pub fn get_running() -> PID {
+    RUNNING.lock()[crate::utils::whoami()]
+}
+
+pub fn add(pid: PID) {
     let mut plock = PRESENT.lock();
     if plock.contains(&pid) {
         return;
@@ -19,7 +35,7 @@ lazy_static! {
     let mut rrlock = RR.lock();
     rrlock.push_back(pid);
     plock.insert(pid);
-}*/
+}
 
 pub fn schedule() -> ! {
     // Is there kernel saved state?

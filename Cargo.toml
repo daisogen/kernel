@@ -8,7 +8,7 @@ strip = true
 
 [dependencies]
 lazy_static = { "version" = "1.0", "features" = ["spin_no_std"] }
-spin = "0.5.2"
+spin = "0.9.6"
 bitfield = "0.14.0"
 good_memory_allocator = "0.1.7"
 elf = { "git" = "https://github.com/cole14/rust-elf", "default-features" = false, "features" = ["nightly"] }

@@ -43,3 +43,9 @@ pub fn set_color(fg: Color, bg: Color) {
         TEXT_WRITER.lock().set_color(fg, bg);
     }
 }
+
+pub fn clear() {
+    if TEXT_MODE {
+        TEXT_WRITER.lock().clear();
+    }
+}

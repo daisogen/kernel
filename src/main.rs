@@ -13,6 +13,7 @@ mod boot;
 mod bootstrap;
 mod desc;
 mod drivers;
+mod futex;
 mod mem;
 mod panic;
 mod pd;
@@ -27,6 +28,7 @@ const MAX_CORES: usize = 32;
 
 #[no_mangle]
 pub extern "C" fn kmain(boot_info: &'static StivaleStruct) -> ! {
+    term::clear();
     println!("Daisogen booting up\n");
 
     print!("GDT ");
@@ -49,10 +51,10 @@ pub extern "C" fn kmain(boot_info: &'static StivaleStruct) -> ! {
     println!("[OK]");
 
     print!("Final preps ");
-    desc::tss::init();
-    desc::idt::init2();
     drivers::acpi::parse(boot_info);
     drivers::apic::init();
+    desc::tss::init();
+    desc::idt::init2();
     pd::init();
     println!("[OK]");
 

@@ -6,7 +6,7 @@ use alloc::vec::Vec;
 use spin::Mutex;
 use task::Task;
 
-type PID = usize;
+pub type PID = usize;
 
 static mut TASKS: Vec<Task> = Vec::new();
 static PIDS: Mutex<Vec<PID>> = Mutex::new(Vec::new());
@@ -35,6 +35,10 @@ fn alloc_pid() -> PID {
 
 fn pid_to_base(pid: PID) -> u64 {
     crate::mem::HH + ((pid as u64) << 31)
+}
+
+fn base_to_pid(addr: u64) -> PID {
+    ((addr - crate::mem::HH) >> 31) as PID
 }
 
 pub fn get_task(pid: PID) -> &'static Task {
