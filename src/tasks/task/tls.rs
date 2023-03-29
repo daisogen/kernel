@@ -1,39 +1,37 @@
 // Thread-local storage
 
 use alloc::sync::Arc;
+use alloc::vec::Vec;
 use core::sync::atomic::{AtomicUsize, Ordering};
-use hashbrown::HashMap;
 use spin::Mutex;
 
 pub struct TLS {
-    keys: Arc<Mutex<HashMap<usize, usize>>>,
-    ctr: Arc<AtomicUsize>,
+    keys: Arc<Mutex<Vec<usize>>>,
 }
 
 impl TLS {
     pub fn new() -> TLS {
         TLS {
-            keys: Arc::new(Mutex::new(HashMap::new())),
-            ctr: Arc::new(AtomicUsize::new(1)),
+            keys: Arc::new(Mutex::new(Vec::new())),
         }
     }
 
     pub fn create(&self) -> usize {
-        let key = self.ctr.fetch_add(1, Ordering::SeqCst);
-        self.keys.lock().insert(key, 0);
+        let mut guard = self.keys.lock();
+        let key = guard.len();
+        guard.push(0); // Default value
         key
     }
 
     pub fn set(&self, key: usize, val: usize) {
-        self.keys.lock().insert(key, val);
+        self.keys.lock()[key] = val;
     }
 
     pub fn get(&self, key: usize) -> usize {
-        *self.keys.lock().get(&key).unwrap() // TODO: DO NOT UNWRAP!
+        self.keys.lock()[key]
     }
 
-    pub fn destroy(&self, key: usize) {
-        self.keys.lock().remove(&key);
+    pub fn destroy(&self, _key: usize) {
         // TODO: implement destructors and call one here
     }
 }

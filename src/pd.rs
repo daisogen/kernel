@@ -63,7 +63,7 @@ pub fn init() {
         crate::tasks::task::futex::ffi::wake_one as u64,
     );
 
-    set3("tls_crate", crate::tasks::task::tls::ffi::create as u64);
+    set3("tls_create", crate::tasks::task::tls::ffi::create as u64);
     set3("tls_set", crate::tasks::task::tls::ffi::set as u64);
     set3("tls_get", crate::tasks::task::tls::ffi::get as u64);
     set3("tls_destroy", crate::tasks::task::tls::ffi::destroy as u64);
