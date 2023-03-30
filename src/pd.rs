@@ -56,10 +56,9 @@ pub fn init() {
         crate::desc::idt::default_isr::_set_wrapped_isr as u64,
     );
 
-    set3("futex_new", crate::tasks::task::futex::ffi::new as u64);
     set3("futex_wait", crate::tasks::task::futex::ffi::wait as u64);
     set3(
-        "futex_wake",
+        "futex_wake_one",
         crate::tasks::task::futex::ffi::wake_one as u64,
     );
 
@@ -75,7 +74,11 @@ pub extern "C" fn get(strptr: u64, sz: usize) -> u64 {
         return 0;
     }
     let name = String::from(name.unwrap());
-    get2(&name)
+    let ret = get2(&name);
+    if ret == 0 {
+        crate::println!("WARNING: {}@pd is not registered", name);
+    }
+    ret
 }
 
 pub fn get2(name: &String) -> u64 {

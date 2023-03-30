@@ -2,7 +2,6 @@
 
 use alloc::sync::Arc;
 use alloc::vec::Vec;
-use core::sync::atomic::{AtomicUsize, Ordering};
 use spin::Mutex;
 
 pub struct TLS {
