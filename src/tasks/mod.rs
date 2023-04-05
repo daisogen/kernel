@@ -48,3 +48,19 @@ pub fn get_task(pid: PID) -> &'static Task {
 pub fn get_mut_task(pid: PID) -> &'static mut Task {
     unsafe { &mut TASKS[pid] }
 }
+
+// ---
+
+// Get the return address for the function that calls this one. Then, convert
+// that to a PID and get the task. This way, PD functions can know who
+// called them, and thus which PID to lock.
+#[inline(always)]
+pub fn caller() -> PID {
+    base_to_pid(unsafe { crate::utils::return_address(0) } as u64)
+}
+
+// Same but return a Task
+#[inline(always)]
+pub fn caller_mut_task() -> &'static mut Task {
+    get_mut_task(caller())
+}

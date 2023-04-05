@@ -1,4 +1,6 @@
+use super::SavedState;
 use alloc::vec::Vec;
+use core::arch::global_asm;
 use hashbrown::HashMap;
 use spin::Mutex;
 
@@ -26,9 +28,9 @@ impl Futexes {
         key
     }
 
-    pub fn wait(&mut self, var: usize, val: usize) {
+    pub fn wait(&mut self, var: usize, val: usize, caller: PID) {
         let key = self.var2key(var);
-        self.f[key].wait(val);
+        self.f[key].wait(val, caller);
     }
 
     pub fn wake_one(&mut self, var: usize) {
@@ -58,15 +60,22 @@ impl Futex {
         }
     }
 
-    pub fn wait(&mut self, val: usize) {
+    pub fn wait(&mut self, val: usize, caller: PID) {
         let _guard = self.access.lock();
 
         if *self.var == val {
             // zzZZzz
-            self.parking.push_back(scheduler::running());
-            drop(_guard);
-            scheduler::schedule();
-            // That does not return
+            self.parking.push_back(caller);
+            // Save state
+            let task = crate::tasks::get_mut_task(caller);
+            if unsafe { save_state(&mut task.rip, &mut task.rsp, &mut task.state) } {
+                // Returned! Don't do anything, let's keep returning
+            } else {
+                // Saved
+                drop(_guard);
+                scheduler::schedule();
+                // That does not return
+            }
         } else {
             // No need to sleep!
         }
@@ -84,12 +93,22 @@ impl Futex {
 
 // ---
 
+extern "C" {
+    fn save_state(rip: *mut u64, rsp: *mut u64, state: *mut SavedState) -> bool;
+}
+
+global_asm!(include_str!("statesave.s"));
+
+// ---
+
 pub mod ffi {
-    use crate::tasks::scheduler;
+    use crate::tasks;
+
     pub extern "C" fn wait(var: usize, val: usize) {
-        scheduler::running_mut_task().futexes.wait(var, val)
+        let caller = tasks::scheduler::core_running();
+        tasks::caller_mut_task().futexes.wait(var, val, caller);
     }
     pub extern "C" fn wake_one(var: usize) {
-        scheduler::running_mut_task().futexes.wake_one(var)
+        tasks::caller_mut_task().futexes.wake_one(var);
     }
 }

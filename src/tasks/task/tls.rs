@@ -38,17 +38,18 @@ impl TLS {
 // ---
 
 pub mod ffi {
-    use crate::tasks::scheduler;
+    use crate::tasks;
+
     pub extern "C" fn create() -> usize {
-        scheduler::running_mut_task().tls.create()
+        tasks::caller_mut_task().tls.create()
     }
     pub extern "C" fn set(key: usize, val: usize) {
-        scheduler::running_mut_task().tls.set(key, val);
+        tasks::caller_mut_task().tls.set(key, val);
     }
     pub extern "C" fn get(key: usize) -> usize {
-        scheduler::running_mut_task().tls.get(key)
+        tasks::caller_mut_task().tls.get(key)
     }
     pub extern "C" fn destroy(key: usize) {
-        scheduler::running_mut_task().tls.destroy(key);
+        tasks::caller_mut_task().tls.destroy(key);
     }
 }

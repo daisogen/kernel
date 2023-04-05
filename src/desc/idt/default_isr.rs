@@ -32,6 +32,16 @@ pub extern "C" fn default_isr(v: u64) {
     unsafe {
         jmp0(addr);
     }
+
+    // Was I doing something?
+    let pid = crate::tasks::scheduler::core_running();
+    if pid == 0 {
+        // Not at all, let's schedule
+        crate::tasks::scheduler::schedule();
+    } else {
+        // I was indeed doing something, so let's gracefully return
+        crate::utils::regs::sti(); // <- I'm pretty sure this is wrong (TODO?)
+    }
 }
 
 extern "C" {

@@ -31,3 +31,17 @@ pub fn ncores() -> usize {
 pub fn whoami() -> usize {
     (unsafe { core::arch::x86_64::__cpuid(0x01) }.ebx >> 24) as usize
 }
+
+extern "C" {
+    #[link_name = "llvm.returnaddress"]
+    pub fn return_address(a: i32) -> *const u8;
+}
+
+pub fn hlt() -> ! {
+    unsafe {
+        core::arch::asm!("hlt");
+    }
+
+    // That never returns
+    loop {}
+}

@@ -2,6 +2,7 @@
 #![no_main]
 #![feature(rustc_private)]
 #![feature(error_in_core)]
+#![feature(link_llvm_intrinsics)]
 
 #[macro_use]
 extern crate bitfield;
