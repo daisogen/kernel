@@ -43,6 +43,7 @@ impl Writer for TextWriter {
     fn write_byte(&mut self, byte: u8) {
         match byte {
             b'\n' => self.line_break(),
+            8 => self.backspace(),
             byte => {
                 if self.col >= BUFFER_WIDTH {
                     self.line_break();
@@ -55,6 +56,18 @@ impl Writer for TextWriter {
                 self.col += 1;
             }
         }
+    }
+
+    fn backspace(&mut self) {
+        if self.col == 0 {
+            self.col = BUFFER_HEIGHT - 1;
+            self.row -= 1;
+        } else {
+            self.col -= 1;
+        }
+
+        // But what if you're at the top of the screen?????
+        // You use another OS, that's what
     }
 
     fn line_break(&mut self) {

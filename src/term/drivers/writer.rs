@@ -5,6 +5,7 @@ use crate::term::color::Color;
 pub trait Writer {
     // Just implement these :)
     fn write_byte(&mut self, byte: u8);
+    fn backspace(&mut self);
     fn line_break(&mut self);
     fn clear_row(&mut self, row: usize);
     fn scroll(&mut self);
