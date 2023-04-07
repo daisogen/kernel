@@ -63,7 +63,17 @@ pub fn wrmsr(msr: u32, v: u64) {
     }
 }
 
-// in8 would be here
+pub fn in8(port: u16) -> u8 {
+    let mut ret: u8;
+    unsafe {
+        asm!("in al, dx",
+             in("dx") port,
+             out("al") ret,
+             options(nostack, preserves_flags));
+    }
+    ret
+}
+
 pub fn out8(port: u16, value: u8) {
     unsafe {
         asm!("out dx, al",

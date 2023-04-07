@@ -38,14 +38,20 @@ pub extern "C" fn _print_str(strptr: u64, size: usize) {
 }
 
 // Abstractions
+pub fn init() {
+    if TEXT_MODE {
+        TEXT_WRITER.lock().init();
+    }
+}
+
 pub fn set_color(fg: Color, bg: Color) {
     if TEXT_MODE {
         TEXT_WRITER.lock().set_color(fg, bg);
     }
 }
 
-pub fn clear() {
+/*pub fn clear() {
     if TEXT_MODE {
         TEXT_WRITER.lock().clear();
     }
-}
+}*/

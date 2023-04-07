@@ -1,5 +1,7 @@
 // For VGA text mode
 
+mod cursor;
+
 use super::writer::Writer;
 use crate::term::Color;
 use lazy_static::lazy_static;
@@ -40,6 +42,15 @@ pub struct TextWriter {
 }
 
 impl Writer for TextWriter {
+    fn init(&mut self) {
+        cursor::enable();
+        self.clear();
+    }
+
+    fn update_cursor(&self) {
+        cursor::mov(self.col, self.row);
+    }
+
     fn write_byte(&mut self, byte: u8) {
         match byte {
             b'\n' => self.line_break(),
@@ -54,6 +65,7 @@ impl Writer for TextWriter {
                     color: self.color,
                 };
                 self.col += 1;
+                self.update_cursor();
             }
         }
     }
@@ -65,6 +77,7 @@ impl Writer for TextWriter {
         } else {
             self.col -= 1;
         }
+        self.update_cursor();
 
         // But what if you're at the top of the screen?????
         // You use another OS, that's what
@@ -73,6 +86,7 @@ impl Writer for TextWriter {
     fn line_break(&mut self) {
         self.row += 1;
         self.col = 0;
+        self.update_cursor();
         if self.row >= BUFFER_HEIGHT {
             self.scroll();
         }
@@ -98,6 +112,7 @@ impl Writer for TextWriter {
         self.clear_row(BUFFER_HEIGHT - 1);
         self.col = 0;
         self.row -= 1;
+        self.update_cursor();
     }
 
     fn clear(&mut self) {
@@ -108,6 +123,7 @@ impl Writer for TextWriter {
 
         self.col = 0;
         self.row = 0;
+        self.update_cursor();
     }
 
     fn set_color(&mut self, fg: Color, bg: Color) {

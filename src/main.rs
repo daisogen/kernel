@@ -28,7 +28,7 @@ const MAX_CORES: usize = 32;
 
 #[no_mangle]
 pub extern "C" fn kmain(boot_info: &'static StivaleStruct) -> ! {
-    term::clear();
+    term::init();
     println!("Daisogen booting up\n");
 
     print!("GDT ");
