@@ -37,6 +37,15 @@ pub extern "C" fn _print_str(strptr: u64, size: usize) {
     print!("{}", name.unwrap());
 }
 
+// Custom formatting macro
+#[macro_export]
+macro_rules! debug {
+    ($($arg:tt)*) => {
+        #[cfg(debug_assertions)]
+        $crate::println!("debug: {}", format_args!($($arg)*));
+    }
+}
+
 // Abstractions
 pub fn init() {
     if TEXT_MODE {

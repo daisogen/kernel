@@ -31,11 +31,11 @@ pub extern "C" fn kmain(boot_info: &'static StivaleStruct) -> ! {
     term::init();
     println!("Daisogen booting up\n");
 
-    print!("GDT ");
+    // TODO: Move this to arch
+    print!("Architectural init ");
+    debug!("GDT");
     desc::gdt::init();
-    println!("[OK]");
-
-    print!("IDT ");
+    debug!("IDT");
     desc::idt::init();
     println!("[OK]");
 
@@ -51,9 +51,13 @@ pub extern "C" fn kmain(boot_info: &'static StivaleStruct) -> ! {
     println!("[OK]");
 
     print!("Final preps ");
+    debug!("ACPI parsing");
     drivers::acpi::parse(boot_info);
+    debug!("APIC init");
     drivers::apic::init();
+    debug!("TSS init");
     desc::tss::init();
+    debug!("IDT init2");
     desc::idt::init2();
     pd::init();
     println!("[OK]");

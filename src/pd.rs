@@ -76,7 +76,7 @@ pub extern "C" fn get(strptr: u64, sz: usize) -> u64 {
     let name = String::from(name.unwrap());
     let ret = get2(&name);
     if ret == 0 {
-        crate::println!("WARNING: {}@pd is not registered", name);
+        crate::debug!("WARNING: {}@pd is not registered", name);
     }
     ret
 }
