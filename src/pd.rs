@@ -66,6 +66,9 @@ pub fn init() {
     set3("tls_set", crate::tasks::task::tls::ffi::set as u64);
     set3("tls_get", crate::tasks::task::tls::ffi::get as u64);
     set3("tls_destroy", crate::tasks::task::tls::ffi::destroy as u64);
+
+    set3("phys_alloc", crate::mem::pmm::ops::phys_alloc as u64);
+    set3("phys_of", crate::mem::paging::phys_of as u64);
 }
 
 pub extern "C" fn get(strptr: u64, sz: usize) -> u64 {
